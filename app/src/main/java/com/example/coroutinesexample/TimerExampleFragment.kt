@@ -1,6 +1,7 @@
 package com.example.coroutinesexample
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +22,7 @@ class TimerExampleFragment : Fragment() {
     lateinit var scope: CoroutineScope
     lateinit var timerChannel: ReceiveChannel<Unit>
 
-    val timerToggleChannel = Channel<Boolean>(Channel.RENDEZVOUS)
+    val timerToggleChannel = Channel<Boolean>(Channel.CONFLATED)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.timer_example_fragment_layout, container, false)
@@ -35,9 +36,7 @@ class TimerExampleFragment : Fragment() {
 
         timerSwitch.isChecked = true
         timerSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-            scope.launch {
-                timerToggleChannel.send(isChecked)
-            }
+            timerToggleChannel.offer(isChecked)
         }
     }
 
@@ -51,7 +50,7 @@ class TimerExampleFragment : Fragment() {
             var seconds = 0
 
             consumeAsFlow()
-                .onEach { timer.text = "seconds: ${seconds++}" }
+                .onEach { timer.text = "${seconds++}\nseconds" }
                 .launchIn(scope)
         }
     }

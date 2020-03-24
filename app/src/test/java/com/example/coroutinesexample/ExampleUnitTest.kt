@@ -121,8 +121,10 @@ class ExampleUnitTest {
     @Test
     fun example3() = runBlocking {
         launch {
-            delay(60000)
+
         }
+
+        select<Unit> {  }
     }
 
 
